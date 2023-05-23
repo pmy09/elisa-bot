@@ -35,12 +35,12 @@ client.login(process.env.CLIENT_TOKEN);
 
 client.on('messageCreate', msg => {
     const member = msg.guild.members.cache.find(x => x.user.username == msg.author.username);
-    const xembed = new EmbedBuilder().setColor('Yellow').setTitle('SEXY CHAT ALERT :kissing_heart::kissing_heart:').setDescription(`:kissing_heart: ${msg.author.username} just initiated a sexy convo`)
+    const xembed= (word) => {return new EmbedBuilder().setColor('Red').setTitle('Bad language alert').setDescription(`:thumbsdown::skin-tone-4: ${msg.author.username}, please refrain from using words like ${word} in this channel`)}
     const embed = new EmbedBuilder().setColor('Blue').setDescription(`:white_check_mark: ${msg.author.username} has been **timed out** for 2 minutes`);
     const dmEmbed = new EmbedBuilder().setColor('Red').setDescription(`:white_check_mark: You have been **timed out** in ${msg.channel.name} for 2 minutes for sexy talk :grin::grin:`)
     let msgString = msg.content.toLowerCase().split(' ')
     // console.log(msg)
-     if (msgString[0] === 'hello' && msg.author.username !== 'Elisa') {
+     if ((msgString[0].toLowerCase() === 'hello' || msgString[0].toLowerCase() === 'hi') && msg.author.username !== 'Elisa') {
        return msg.reply(`Hello ${msg.author.username}`);
      }
 
@@ -48,7 +48,7 @@ client.on('messageCreate', msg => {
         if(ban.includes(word) && msg.author.username !== 'Elisa' && msg.channelId === r4){
             
             // const member = msg.guild.members.cache.find(x => x.user.username == 'Elisa');
-            // console.log('member', member.permissions)
+            console.log('member', word)
             
             member.timeout(120_000)
             msg.reply(`No sex talk here please ${msg.author.username}`)
@@ -65,7 +65,7 @@ client.on('messageCreate', msg => {
 
         else {
             if(msg.author.username !== 'Elisa' && ban.includes(word)){
-                msg.channel.send({embeds: [xembed]})
+                msg.channel.send({embeds: [xembed(word)]})
             }
         }
      })
