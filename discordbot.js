@@ -2,6 +2,8 @@
 require('dotenv').config();
 const { translate } = require('@vitalets/google-translate-api');
 // const HttpProxyAgent = require('http-proxy-agent');
+const {franc} = require('franc-cjs');
+const {detectAll} = require('tinyld')
 const {ban} = require('./words.js')
 // console.log('ban', ban)
 
@@ -13,6 +15,7 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 const r4 = '1093128717544468561'
 const gen = '1093099947831865460'
 const LI = '1093478633324150784'
+const generalChannelId = '1141000015897182240'
 
 // module.exports = {
 // 	cooldown: 5,
@@ -30,7 +33,14 @@ const LI = '1093478633324150784'
 
 client.on('ready', (msg) => {
  console.log(`Logged in as ${client.user.tag}!`);
-//  return msg.emit( '@Arashi, I am here now');
+ const generalChannel = client.channels.cache.get(generalChannelId);
+    
+ if (generalChannel) {
+     // Send a message to the general channel
+     generalChannel.send("Hi all, I'm here to translate all your messages into English. May not work all the time but please give me a chance 😏😏 ");
+ } else {
+     console.log('General channel not found.');
+ }
 });
 
 // Log In our bot
@@ -94,12 +104,13 @@ client.on('messageCreate', async msg => {
     } else {
         // Automatically translate non-command msgs
         try {
-            // const detectedLanguage = franc(msg.content);
+            const detectedLanguage = detectAll(msg.content);
+            console.log(detectedLanguage[0].lang)
 			// const agent = new HttpProxyAgent('http://103.152.112.162:80');
-            // if (detectedLanguage !== 'eng') {
+            if (detectedLanguage[0].lang !== 'en') {
                 const translation = await translate(msg.content, { to: 'en' }); // Translate to English
                 msg.channel.send(`Original: ${msg.content}\nTranslation: ${translation.text}`);
-            // }
+            }
         } catch (error) {
             console.error('Translation error:', error);
         }
