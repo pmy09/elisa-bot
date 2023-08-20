@@ -8,9 +8,9 @@ const {ban} = require('./words.js')
 // console.log('ban', ban)
 
 // Discord.js versions ^13.0 require us to explicitly define client intents
-const { Client, GatewayIntentBits, Interaction, SlashCommandBuilder, PermissionsBitField, EmbedBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, Interaction, SlashCommandBuilder, PermissionsBitField, EmbedBuilder, Events } = require('discord.js');
 // console.log(Intents)
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildModeration] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildModeration, GatewayIntentBits.GuildMessageReactions] });
 
 const r4 = '1093128717544468561'
 const gen = '1093099947831865460'
@@ -121,6 +121,87 @@ client.on('messageCreate', async msg => {
     //     msg.reply(`no sex talk please ${msg.author.username}`)
     //  }
     });
+
+
+client.on(Events.MessageReactionAdd, async (reaction, user) => {
+    // Check if the reaction is from the bot or the original message author
+    if (user.bot || user.id === reaction.message.author.id) return;
+    // Check if the reaction is on a message you want to trigger translation for
+    // if (reaction.message.content.toLowerCase().includes('translate me')) {
+        const targetLanguage = getTargetLanguageFromReaction(reaction.emoji.name); // Implement this function
+        const originalText = reaction.message.content
+
+        if (targetLanguage) {
+            try {
+                const translation = await translate(originalText, { to: targetLanguage });
+                reaction.message.channel.send(`Translation to ${targetLanguage}: ${translation.text}`);
+            } catch (error) {
+                console.error('Translation error:', error);
+                reaction.message.channel.send('An error occurred while translating the text.');
+            }
+        }
+    // }
+});
+
+
+
+// Helper function to map emoji to languages
+function getTargetLanguageFromReaction(emoji) {
+    const emojiToLanguage = {
+        '🇦🇫': 'ps', // Afghanistan
+        '🇿🇦': 'en', // South Africa
+        '🇦🇷': 'es', // Argentina
+        '🇦🇺': 'en', // Australia
+        '🇦🇪': 'ar', // United Arab Emirates
+        '🇧🇩': 'bn', // Bangladesh
+        '🇧🇷': 'pt', // Brazil
+        '🇨🇦': 'en', // Canada
+        '🇨🇳': 'zh-CN', // China
+        '🇨🇴': 'es', // Colombia
+        '🇩🇪': 'de', // Germany
+        '🇪🇬': 'ar', // Egypt
+        '🇪🇹': 'am', // Ethiopia
+        '🇫🇷': 'fr', // France
+        '🇬🇧': 'en', // United Kingdom
+        '🇬🇭': 'en', // Ghana
+        '🇮🇳': 'hi', // India
+        '🇮🇶': 'ar', // Iraq
+        '🇮🇹': 'it', // Italy
+        '🇯🇵': 'ja', // Japan
+        '🇰🇪': 'sw', // Kenya
+        '🇰🇷': 'ko', // South Korea
+        '🇲🇦': 'ar', // Morocco
+        '🇲🇽': 'es', // Mexico
+        '🇲🇾': 'ms', // Malaysia
+        '🇲🇲': 'my', // Myanmar
+        '🇳🇬': 'en', // Nigeria
+        '🇳🇵': 'ne', // Nepal
+        '🇵🇪': 'es', // Peru
+        '🇵🇭': 'tl', // Philippines
+        '🇵🇰': 'ur', // Pakistan
+        '🇷🇺': 'ru', // Russia
+        '🇸🇦': 'ar', // Saudi Arabia
+        '🇸🇩': 'ar', // Sudan
+        '🇹🇭': 'th', // Thailand
+        '🇹🇷': 'tr', // Turkey
+        '🇺🇦': 'uk', // Ukraine
+        '🇺🇬': 'en', // Uganda
+        '🇺🇸': 'en', // United States
+        '🇺🇿': 'uz', // Uzbekistan
+        '🇻🇪': 'es', // Venezuela
+        '🇻🇳': 'vi', // Vietnam
+        '🇾🇪': 'ar', // Yemen
+        // Add more mappings as needed
+    };
+    return emojiToLanguage[emoji] || null;
+}
+
+    
+    
+    
+    
+    
+    
 
 // client.on('interactionCreate', async interaction => {
 //     console.log('int', interaction)
